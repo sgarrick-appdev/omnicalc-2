@@ -8,17 +8,17 @@ The username and password is on Canvas — here is our target:
 
 ## Query strings
 
-The essential piece: add a **query string** onto _any_ URL in your Rails app, e.g.
+The essential concept: visitors can add a **query string** onto _any_ URL in your Rails app, e.g.
 
 ```
 /rock?dessert=Ice cream&color=Orange
 ```
 
-and watch what happens in your server log when you visit that URL.
+Watch what happens in your server log when you visit that URL.
 
 Rails parses any query string parameters and puts them into a special Hash called `params`. You have access to `params` in the action.
 
-With that simple fact, combined with the way that HTML forms behave, we can invent ways to make any forms we want work!
+With that simple fact, combined with the way that HTML forms behave when submitted, we can invent ways to make any forms we want work!
 
 ## Your first task
 
@@ -61,11 +61,96 @@ Now, make it easier on your users. They should not have to type into the address
 
 Can you invent a way to make it easier for them using what you've learned about RCAV, `params`, and what we reverse-engineered about how HTML forms work?
 
-## Google Cloud Translate
+## Intro to APIs
+
+Some handy links:
+
+ - [JSONView Chrome extension](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc?hl=en)
+ - [Dark Sky forecast at the Merchandise Mart for humans](https://darksky.net/forecast/41.8887,-87.6355/us12/en)
+ - Dark Sky forecast at the Merchandise Mart for machines:
+ 
+     ```
+     https://api.darksky.net/forecast/REPLACE_THIS_PATH_SEGMENT_WITH_YOUR_API_TOKEN/41.8887,-87.6355
+     ```
+ - [Dark Sky API docs](https://darksky.net/dev/docs)
+ - [Map of Merchandise Mart for humans](https://goo.gl/maps/2mXdvBnHSGuMq98m6)
+ - Map of Merchandise Mart for machines:
+
+    ```
+    https://maps.googleapis.com/maps/api/geocode/json?address=Merchandise%20Mart%20Chicago&key=REPLACE_THIS_QUERY_STRING_PARAMETER_WITH_YOUR_API_TOKEN
+    ```
+ - [Google Geocoding API docs](https://developers.google.com/maps/documentation/geocoding/start)
+ - [How to store secrets securely on Gitpod](https://chapters.firstdraft.com/chapters/792)
+
+## Your tasks
+
+ - **Street to Coordinates:** Figure out how to turn an arbitrary street address (find a place that is [sort of rainy](https://www.rainviewer.com/) right now to test with) into a latitude/longitude using the Geocoding API.
+ - **Coordinates to weather:** Figure out how to turn a latitude/longitude pair into a weather forecast using the Dark Sky API Show the information displayed in the target:
+    - Current Temperature
+    - Current summaray
+    - Outlooks for next sixy minutes, several hours, several days
+ - **Street to Weather:** Put the above two together — given an arbitrary street address, display the forecast.
+
+## Stretch goal
+   
+   - Stretch goal: check whether there is a >50% chance of precipitation at any point during the next 12 hours. If so, we will print "You should take an umbrella!"
+   - Explore [the API documentation](https://darksky.net/dev/docs#forecast-request) to see what information is available to help you check this.
+   - Something that might or might not be useful: [the `Time.at` method](https://apidock.com/ruby/Time/at/class).
+
+        (Humans have [many, many different ways of representing dates](https://en.wikipedia.org/wiki/List_of_calendars). For the purposes of different pieces of software being able to agree on dates and times, most systems when talking to each other use [Epoch time](https://en.wikipedia.org/wiki/Unix_time) notation, or the number of seconds that have passed since midnight UTC on January 1st (minus leap seconds). Dark Sky, for example, includes times in this format. You can use `Time.at()` to convert to something more familiar, if you want to.)
+ - Put all of the pieces together; given an arbitrary address:
+    - print the current temperature
+    - print outlook for the next hour
+    - print whether a person should carry an umbrella.
+
+## Using gems to interact with APIs
+
+Interacting with APIs can be easier if someone has written a Ruby library (or "gem") with methods that already know the URLs, parse the JSON, and return exactly the values we want.
+
+### Twilio
+
+In your `Gemfile`, add:
+
+```ruby
+gem "twilio-ruby"
+```
+
+Then, at a Terminal prompt:
+
+```bash
+bundle install
+```
+
+You will then have access to the `Twilio::REST::Client` class. It is used like this:
+
+```ruby
+# Retrieve your credentials from secure storage
+twilio_sid = ENV.fetch("TWILIO_ACCOUNT_SID")
+twilio_token = ENV.fetch("TWILIO_AUTH_TOKEN")
+twilio_sending_number = ENV.fetch("TWILIO_SENDING_PHONE_NUMBER")
+
+# Create an instance of the Twilio Client and authenticate with your API key
+twilio_client = Twilio::REST::Client.new(twilio_sid, twilio_token)
+
+# Craft your SMS as a Hash with three keys
+sms_parameters = {
+  :from => twilio_sending_number,
+  :to => "+19876543210", # Put your own phone number here if you want to see it in action
+  :body => "It's going to rain today — take an umbrella!"
+}
+
+# Send your SMS!
+twilio_client.api.account.messages.create(sms_parameters)
+```
+
+ - Sign up for your own Twilio account — [if use this referral link you'll $10 in credit](https://www.twilio.com/referral/86ykDX), and so will our class account.
+ - [Twilio Ruby Quickstarts](https://www.twilio.com/docs/quickstart/ruby)
+
+### Google Cloud Translate
 
  - [Google Cloud Translation](https://cloud.google.com/translate)
 
-Here's the crux of using the official gem:
+Here's the crux of using the official Google Translate gem.
 
 Add the gem to your Gemfile:
 
@@ -84,7 +169,7 @@ gt_client = Google::Cloud::Translate.new({ :version => :v2 })
 translation = gt_client.translate("Hello, world!", { :to => "es" })
 ```
 
-Amazing!
+Amazing! (If that didn't work, ensure that you've added my API credentials [as environment variables on Gitpod](https://chapters.firstdraft.com/chapters/792). You can find them in Canvas.)
 
 To list all available languages,
 
@@ -94,6 +179,8 @@ languages.size #=> 104
 languages[0].code #=> "af"
 languages[0].name #=> "Afrikaans"
 ```
+
+**Stretch goal:** Make your app behave like the target 
 
 Read more at the gem docs:
 
