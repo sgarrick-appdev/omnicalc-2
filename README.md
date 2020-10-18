@@ -41,7 +41,7 @@ Visit your `/add` URL, but type a query string on to the end: `?first_num=3&seco
 
 First pull up the Terminal tab running your server and Cmd-K or Ctrl-K to clear it out, then visit that URL again. Scroll to the top of the Terminal tab. Read the log — what do you notice?
 
-The `params` Parameters `Hash`! Use the `params` hash in the action you defined to calculate a result and display it in the view template you created. Make the markup [match the target](https://form-intro.matchthetarget.com/add?first_num=3&second_num=4).
+The `params` Parameters `Hash`! Use the `params` hash in the action you defined to calculate a result and display it in the view template you created. Make the markup [match the target](https://omnicalc-2.matchthetarget.com/wizard_add?first_num=3&second_num=4).
 
 ## Do the other 3
 
