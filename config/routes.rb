@@ -21,5 +21,8 @@ Rails.application.routes.draw do
   #=====
   get("street_to_coords/new", {:controller =>"application", :action=>"the_user_input_address"})
   get("street_to_coords/results", {:controller =>"application", :action=>"geocoding"})
+  get("translate/new", {:controller => "application", :action => "translate_input"})
+  get("translate/result", {:controller => "application", :action => "translate_result"})
+
 
 end
