@@ -29,10 +29,8 @@ class ApplicationController < ActionController::Base
 
   def translate_result
     require "google/cloud/translate"
-    translate_credentials = ENV.fetch("TRANSLATE_CREDENTIALS")
-    translate_project = ENV.fetch("TRANSLATE_PROJECT")
     
-    gt_client = Google::Cloud::Translate.new(translate_credentials, translate_project)
+    gt_client = Google::Cloud::Translate.new({ :version => :v2 })
     @user_input_to_translate = params.fetch("user_input_to_translate")
     @translation = gt_client.translate(@user_input_to_translate, { :to => "af" })
     
